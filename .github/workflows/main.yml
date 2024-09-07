@@ -6,10 +6,10 @@ on:
         required: true
         default: 'main'
       dnsNameLabel:
-        description: 'Env & Container instance name,for e.g.= Dev-acisampleapp08976 & DNS name label for the container instance'
+        description: 'Env & Container instance name,for e.g.= dev-aciapp08976,uat-aciapp08976 & DNS name label for the container instance'
         required: true
       containerName:
-        description: 'Env & Container instance name, for e.g.= Dev-acisampleapp08976'
+        description: 'Env & Container instance name, for e.g.= dev-aciapp08976,uat-aciapp08976,'
         required: true
 
 name: Linux_Container_Workflow
