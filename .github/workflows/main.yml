@@ -1,45 +1,58 @@
 on: [push]
 name: Linux_Container_Workflow
 
+env:
+  AZURE_CREDENTIALS: >
+    {
+      "clientId": "a302eee6-e1a8-4965-a837-ee4098d7bfbc",
+      "clientSecret": "4YH8Q~nnGznr6lfXtqqy3VAwyS5KLivw1LU5HcRj",
+      "subscriptionId": "f8e09f37-d4cd-429e-bb19-a33cde7a7ca5",
+      "tenantId": "5680e0f8-02a8-4545-afdb-bb7754f3002d",
+      "activeDirectoryEndpointUrl": "https://login.microsoftonline.com",
+      "resourceManagerEndpointUrl": "https://management.azure.com/",
+      "activeDirectoryGraphResourceId": "https://graph.windows.net/",
+      "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/",
+      "galleryEndpointUrl": "https://gallery.azure.com/",
+      "managementEndpointUrl": "https://management.core.windows.net/"
+    }
+
+  REGISTRY_LOGIN_SERVER: azconreg05.azurecr.io
+  REGISTRY_USERNAME: a302eee6-e1a8-4965-a837-ee4098d7bfbc
+  REGISTRY_PASSWORD: 4YH8Q~nnGznr6lfXtqqy3VAwyS5KLivw1LU5HcRj
+  RESOURCE_GROUP: rg1
+
 jobs:
-    build-and-deploy:
-        runs-on: ubuntu-latest
-        steps:
-        # checkout the repo
-        - name: 'Checkout GitHub Action'
-          uses: actions/checkout@main
-          
-        - name: 'Login via Azure CLI'
-          uses: azure/login@v1
-          with:
-            creds: ${{ secrets.AZURE_CREDENTIALS }}
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # checkout the repo
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@main
         
-        - name: 'Build and push image'
-          uses: azure/docker-login@v1
-          with:
-            login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-            username: ${{ secrets.REGISTRY_USERNAME }}
-            password: ${{ secrets.REGISTRY_PASSWORD }}
-        - run: |
-            docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
-            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
-
-        - name: 'Deploy to Azure Container Instances'
-          uses: 'azure/aci-deploy@v1'
-          with:
-            resource-group: ${{ secrets.RESOURCE_GROUP }}
-            dns-name-label: acisampleapp08976
-            image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
-            registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-            registry-username: ${{ secrets.REGISTRY_USERNAME }}
-            registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-            name: acisampleapp08976
-            location: 'central india'
-
-        - name: Azure PowerShell Action
-          uses: Azure/powershell@v2
-          with:
-            # Specify the Az PowerShell script here.
-            inlineScript: get-childitem
-            # Azure PS version to be used to execute the script, example: 1.8.0, 2.8.0, 3.4.0. To use the latest version, specify "latest".
-            azPSVersion: latest
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ env.AZURE_CREDENTIALS }}
+      
+      - name: 'Build and push image'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.REGISTRY_LOGIN_SERVER }}
+          username: ${{ env.REGISTRY_USERNAME }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+      
+      - run: |
+          docker build . -t ${{ env.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
+          docker push ${{ env.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
+      
+      - name: 'Deploy to Azure Container Instances'
+        uses: 'azure/aci-deploy@v1'
+        with:
+          resource-group: ${{ env.RESOURCE_GROUP }}
+          dns-name-label: acisampleapp08976
+          image: ${{ env.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
+          registry-login-server: ${{ env.REGISTRY_LOGIN_SERVER }}
+          registry-username: ${{ env.REGISTRY_USERNAME }}
+          registry-password: ${{ env.REGISTRY_PASSWORD }}
+          name: acisampleapp08976
+          location: 'centralindia'
