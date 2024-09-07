@@ -1,7 +1,16 @@
-on: [push]
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build and deploy'
+        required: true
+        default: 'main'
+
 name: Linux_Container_Workflow
 
 env:
+  AZURE_WEBAPP_NAME: nodejsapp009
+  AZURE_WEBAPP_PACKAGE_PATH: "./publish"
   AZURE_CREDENTIALS: >
     {
       "clientId": "a302eee6-e1a8-4965-a837-ee4098d7bfbc",
@@ -25,10 +34,12 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # checkout the repo
+      # checkout the specified branch
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@main
-        
+        with:
+          ref: ${{ github.event.inputs.branch }}  # Use the branch input
+
       - name: 'Login via Azure CLI'
         uses: azure/login@v1
         with:
