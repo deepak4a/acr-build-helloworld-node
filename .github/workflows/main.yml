@@ -5,6 +5,12 @@ on:
         description: 'Branch to build and deploy'
         required: true
         default: 'main'
+      dnsNameLabel:
+        description: 'Env & Container instance name,for e.g.= Dev-acisampleapp08976 & DNS name label for the container instance'
+        required: true
+      containerName:
+        description: 'Env & Container instance name, for e.g.= Dev-acisampleapp08976'
+        required: true
 
 name: Linux_Container_Workflow
 
@@ -34,11 +40,11 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # checkout the specified branch
+      # Checkout the specified branch
       - name: 'Checkout GitHub Action'
-        uses: actions/checkout@main
+        uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.inputs.branch }}  # Use the branch input
+          ref: ${{ github.event.inputs.branch }}  # Use the input branch
 
       - name: 'Login via Azure CLI'
         uses: azure/login@v1
@@ -60,10 +66,10 @@ jobs:
         uses: 'azure/aci-deploy@v1'
         with:
           resource-group: ${{ env.RESOURCE_GROUP }}
-          dns-name-label: acisampleapp08976
+          dns-name-label: ${{ github.event.inputs.dnsNameLabel }}  # Use input for DNS name label
           image: ${{ env.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
           registry-login-server: ${{ env.REGISTRY_LOGIN_SERVER }}
           registry-username: ${{ env.REGISTRY_USERNAME }}
           registry-password: ${{ env.REGISTRY_PASSWORD }}
-          name: acisampleapp08976
+          name: ${{ github.event.inputs.containerName }}  # Use input for container instance name
           location: 'centralindia'
