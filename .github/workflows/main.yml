@@ -34,11 +34,11 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # checkout the specified branch
+      # Checkout the specified branch
       - name: 'Checkout GitHub Action'
-        uses: actions/checkout@main
+        uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.inputs.branch }}  # Use the branch input
+          ref: ${{ github.event.inputs.branch }}  # Use the input branch
 
       - name: 'Login via Azure CLI'
         uses: azure/login@v1
